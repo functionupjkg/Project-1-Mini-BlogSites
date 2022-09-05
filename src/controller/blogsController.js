@@ -1,11 +1,7 @@
-const authorModel = require("../Model/authorModel")
 
 const blogsModel = require("../Model/blogsModel")
 
 const jwt = require('jsonwebtoken');
-
-
-
 // --------------------Create Blogs Function ------------------------------------
 const createBlogs = async function (req, res){
     let data = req.body
@@ -14,7 +10,6 @@ const createBlogs = async function (req, res){
     
 }
 
-//-------------get===============//
 
 const getblog = async function (req, res) {
     let data = req.query
