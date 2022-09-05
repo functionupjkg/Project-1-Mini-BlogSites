@@ -6,27 +6,19 @@ const jwt = require('jsonwebtoken');
 const createBlogs = async function (req, res){
     let data = req.body
     let saveData = await blogsModel.create(data)
-    res.status(201).send({status : true, msg: "Blogs created successfully", data:saveData});
-    
+    res.status(201).send({status : true, msg: "Blogs created successfully", data:saveData});  
 }
-
-
 const getblog = async function (req, res) {
     let data = req.query
     let deleted = data.isdeleted
     let published = data.ispublished
 
     if (!deleted === "true") {
-
-
-        res.status(200).send(deleted)
-
+      res.status(200).send(deleted)
     }
     else if (published === "true") {
-
-        res.status(200).send(published)
+      res.status(200).send(published)
     }
-
     else {
         return res.status(401).send({ status: false, msg: "no document found" })
     }

@@ -5,21 +5,21 @@ const blogsSchema = new mongoose.Schema({
 
     title: {
         type: String,
-        require: true
+        required: true
     },
     body: {
         type: String,
-        require: true
+        required: true
     },
     authorId: {
         type: ObjectId,
-        require: true,
+        required: true,
         refs: "Author"
     },
     tags: [String],
     category: {
         type: String,
-        require: true
+        required: true
     },
     subcategory: {
         type: [String],
@@ -39,6 +39,6 @@ const blogsSchema = new mongoose.Schema({
         type : Boolean,
         default: false
     }
-}({ timestamp: true }));
+},{ timestamp: true });
 
 module.exports = mongoose.model("Blog", blogsSchema)
