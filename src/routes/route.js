@@ -1,13 +1,28 @@
 const express = require('express');
 const router = express.Router();
-const blogsController =require("../controller/blogsController")
+const authorController = require("../controller/authorController")
+const blogsController = require("../controller/blogsController")
 
-router.get("/test-me", function (req, res) {
-    res.send("My first ever api!")
-})
 
-router.post("/blogs",blogsController.createBlogs)
-router.get("../getblog",blogsController.getblog)
+
+//<<----------------- BLOG Project ---------------------------->>
+
+
+// Create Author Api -------------------------------------
+router.post('/authors', authorController.createAuthor )
+
+// Create Blogs Api ---------------------------------------
+router.post('/blogs', blogsController.createBlog)
+router.get ('/blogs' , blogsController.getBlogs)
+
+// Update Blogs Api ----------------------------------------
+router.put('/blogs/:blogId', blogsController.updateBlogs )
+
+//   Get Blog Api -----------------------------------------
+router.delete("/blogs/:blogId",blogsController.deleteByParams)
+router.delete("/blogs", blogsController.deleteByQueryParams)
+
+
 
 
 

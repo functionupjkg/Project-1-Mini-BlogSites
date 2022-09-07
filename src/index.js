@@ -14,16 +14,20 @@ mongoose.connect("mongodb+srv://Jyoti273-db:djukOqR9QbI5Itvc@cluster0.nzuylps.mo
 .then( () => console.log("MongoDb is connected"))
 .catch ( err => console.log(err) )
 
-// app.use (
-//     function (req, res, next) {
-//         console.log ("inside GLOBAL MW");
-//         next();
-//   }
-//   );
+
+    
 
 app.use('/', route);
+
+// app.use(function (req, res) {
+//     var err = new Error('Not Found');
+//     err.status = 404;
+//     return res.status(404).send({status : "404 ", msg : "Path not found"})
+//     });
+
 
 
 app.listen(process.env.PORT || 3000, function () {
     console.log('Express app running on port ' + (process.env.PORT || 3000))
 });
+
