@@ -4,26 +4,45 @@ const blogModel = require('../controller/blogsController');
 const mongoose = require('mongoose');
 
 
-//=======================================
-const authenticate = async function (req, res){
-    let userName = req.body.email;
-    let user = req.body.authorModel.findOne({ email : userName })
-    let token = jwt.sing(
-        {
-            userId : user._Id.toString(),
-            Category : "Book",
-            place : "Bibrary"
+//======================================= Authencation ====================================
 
-        },
-        "Function-Blog-Library"
-    );
-    res.setHeader("x-auth-token", token);
-    res.status(500).send({ status : true, data : token });
+const authenticate = async function (req, res, next) {
+    try {
+        let token = req.headers["x-Api-key"];
+        if (!token) token = req.headers["x-api-key"];
+        if (!token) return res.status(400).send({ status: false, msg: "Token must be present" });
+
+        let decodeToken = jwt.verify(token, "FunctionUp-Blog-Library", (err, decode) => {
+            if (err) {
+                return res.status(400).send({status : false, msg : "Error : Invalid Token or Expired Token"})
+            } (decode == true)
+            next()
+        });
+    } catch (err) {
+        res.status(500).send({ status: false, msg: err.message });
+    }
 };
 
 
 
-//=========
+//=================================== Authorisation ============================
+
+// const authorise = function (req, res, next){
+//    try{
+//     if token = req.headers["x-Api-key"]
+//     if(!token) token = req.headers ["x-api-key"];
+//     if(!token) return res.status(400).send({status: false, msg : "Token must be present"});
+
+//     let decodeToken = jwt.verify(token, "FunctionUp-Blog-Library", (err, decode) => {
+//         if (err) {
+//             re
+//         }
+//     })
+
+// } catch (err) {
+//     res.status(500).send({ status: false, msg: err.message });
+// }
+// }
 
 
 

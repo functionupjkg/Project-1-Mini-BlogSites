@@ -1,5 +1,5 @@
 const authorModel = require("../model/authorModel");
-const jwt = require("jsonwebtoken");
+const jwt = require('jsonwebtoken')
 
 
 const validateEmail = function (email) {
@@ -47,8 +47,8 @@ const createAuthor = async (req, res) => {
             return res.status(400).send({ status: false, msg: "This Email already exists, Please Try another !" });
         }
 
-        // let validPassword = /^(?=.\d)(?=.[a-z])(?=.*[A-Z]).{6,15}$/
-        // if (!validPassword.test(req.body.password)) { return res.status(400).send({ status : false , msg: "Invalid Password, It should be length(6-20) character [Ex - Abc@123]"  }) }
+        let validPassword = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,15}$/
+        if (!validPassword.test(req.body.password)) { return res.status(400).send({ status : false , msg: "Invalid Password, It should be length(6-20) character [Ex - Abc@123]"  }) }
         if (!(data.password)) {
             return res.status(400).send({ status: false, msg: "Please Enter your password" });
         }
@@ -65,16 +65,34 @@ const createAuthor = async (req, res) => {
 
 //============================================= Login User ===========================================
 
-const userLogin = async function ( req, res, next ){
-    let userName = req.body.email;
-    let password = req.body.password;
+const userLogin = async function (req, res) {
+    try {
+        let userName = req.body.email;
+        let password = req.body.password;
 
-    let user = await authorModel.findOne({email : userName, password : password});
-    if (!user) {
-        return res.send({ status: false, msg: " Your Credential not Valid" });
-      } 
-      next();
+        let user = await authorModel.findOne({ email: userName, password: password });
+        if (!user) {
+            return res.send({ status: false, msg: " Your Credential not Valid" });
+        } else{
+
+        let user = await authorModel.findOne({ email: userName })
+        let token = jwt.sign(
+            {
+                userId: user._id.toString(),
+                Category: "Book",
+                place: "Library",
+            },
+
+            "FunctionUp-Blog-Library"
+        );
+        res.setHeader("x-api-key", token);
+        res.status(500).send({ status: true, data: token });
+        }
+    } catch (err) {
+        res.status(500).send({ status: false, msg: err.message });
+    }
 }
+
 
 
 

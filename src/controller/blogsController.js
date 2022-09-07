@@ -52,33 +52,70 @@ const createBlog = async (req, res) => {
 
 //==================================  Get Blogs  =========================================
 
-const getBlogs = async function (req, res) {
+// const getBlogs = async function (req, res) {
 
-  try {
+//   try {
 
-    let data = req.query;
-    let result = {
-      isDeleted: false,
-      isPublished: true,
-      ...data,
-    };
+//     let data = req.query;
+//     let result = {
+//       isDeleted: false,
+//       isPublished: true,
+//       ...data,
+//     };
 
-    let blogs = await blogModel.find(result)
-    console.log(blogs)
+//     let blogs = await blogModel.find(result)
+//     console.log(blogs)
 
-    if (blogs.length === 0 ) {
-      res.status(404).send({ msg: "No Such Blogs are present." })
-    }
+//     if (blogs.length === 0 ) {
+//       res.status(404).send({ msg: "No Such Blogs are present." })
+//     }
    
-    let isValid = mongoose.Types.ObjectId.isValid(authorID)
-    if (!isValid) { return res.status(400).send({ status: false, message: "Not a valid AuthorId" }) }
+//     // let isValid = mongoose.Types.ObjectId.isValid(authorID)
+//     // if (!isValid) { return res.status(400).send({ status: false, message: "Not a valid AuthorId" }) }
     
-    else {
-      res.status(200).send({ status: true, data: blogs })
+//     else {
+//       res.status(200).send({ status: true, data: blogs })
+//     }
+//   }
+//   catch (err) {
+//     res.status(500).send({ status: false, msg: err.message });
+//   }
+// }
+const getBlogs = async function (req, res) {
+  try {
+    let authorId = req.query.authorId
+    let category = req.query.category
+    let tags = req.query.tags
+    let subcategory = req.query.subcategory
+
+    let obj = {
+      isDeleted: false,
+      isPublished: true
     }
-  }
-  catch (err) {
-    res.status(500).send({ status: false, msg: err.message });
+    console.log(obj)
+
+    if (authorId) {
+      obj.authorId = authorId
+      console.log(authorId)
+    } 
+    if (category) {
+      obj.category = category
+    }
+    if (tags) {
+      obj.tags = tags
+    }
+    if (subcategory) {
+      obj.subcategory = subcategory
+    }
+
+    let savedData = await blogModel.find(obj)
+    if (savedData.length == 0) {
+      return res.status(400).send({ status: false, msg: "Such Blogs Not Available" })
+    } else {
+      return res.status(200).send({ status: true, data: savedData })
+    }
+  } catch (err) {
+    res.status(500).send({ msg: err.message })
   }
 }
 
@@ -130,7 +167,9 @@ const deleteByParams = async function (req, res) {
     if (!allBlogs) {
       return res.status(404).send({ status: false, msg: "This blog is not found or deleted." });
     }
+    let date = new Date();
     allBlogs.isDeleted = true;
+    const updated = await blogModel.findByIdAndUpdate({ _id: id }, allBlogs, { new: true, deletedAt: date });
     res.status(200).send({ status: true, msg: "Successfully Blog Deleted" });
 
   } catch (err) {
@@ -139,7 +178,7 @@ const deleteByParams = async function (req, res) {
 };
 
 
-//================================ Delete By Query Params =========================================
+//================================ Delete Blog By Query Params =========================================
 const deleteByQueryParams = async function (req, res) {
   try {
     let data = req.query
@@ -155,7 +194,7 @@ const deleteByQueryParams = async function (req, res) {
       }
     }
     if (data.tags) query.tags = { $in: data.tags }
-    console.log(query.tags)
+  
 
     if (data.category) query.category = data.category
 

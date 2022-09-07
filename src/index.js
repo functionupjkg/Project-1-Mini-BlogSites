@@ -19,11 +19,11 @@ mongoose.connect("mongodb+srv://Jyoti273-db:djukOqR9QbI5Itvc@cluster0.nzuylps.mo
 
 app.use('/', route);
 
-// app.use(function (req, res) {
-//     var err = new Error('Not Found');
-//     err.status = 404;
-//     return res.status(404).send({status : "404 ", msg : "Path not found"})
-//     });
+app.use(function (req, res) {
+    var err = new Error('Not Found');
+    err.status = 404;
+    return res.status(404).send({status : "404 ", msg : "Path not found"})
+    });
 
 
 
