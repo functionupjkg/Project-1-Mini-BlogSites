@@ -1,6 +1,6 @@
 const authorModel = require("../model/authorModel");
 const blogModel = require("../model/blogsModel");
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
 const verify = function (Id) {
   if (!mongoose.Types.ObjectId.isValid(Id)) {
@@ -26,14 +26,13 @@ const createBlog = async (req, res) => {
     if (!data.authorId)
       return res.status(400).send({ status: false, msg: "Author ID is Mandatory" });
 
-
-      if (data.authorId) {
-        if (!verify(data.authorId)) {
-          return res.status(404).send({ status: false, msg: "Please Enter Valid Author Id " })
-        } else {
-          req.body.authorId = data.authorId
-        }
+    if (data.authorId) {
+      if (!verify(data.authorId)) {
+        return res.status(404).send({ status: false, msg: "Please Enter Valid Author Id " })
+      } else {
+        req.body.authorId = data.authorId
       }
+    }
 
     if (!data.category)
       return res.status(400).send({ status: false, msg: "Please Enter book Category" });
@@ -67,9 +66,14 @@ const getBlogs = async function (req, res) {
     let blogs = await blogModel.find(result)
     console.log(blogs)
 
-    if (blogs.length === 0) {
-      res.status(404).send({ msg: "No Such Blogs are present !!" })
-    } else {
+    if (blogs.length === 0 ) {
+      res.status(404).send({ msg: "No Such Blogs are present." })
+    }
+   
+    let isValid = mongoose.Types.ObjectId.isValid(authorID)
+    if (!isValid) { return res.status(400).send({ status: false, message: "Not a valid AuthorId" }) }
+    
+    else {
       res.status(200).send({ status: true, data: blogs })
     }
   }
@@ -126,7 +130,6 @@ const deleteByParams = async function (req, res) {
     if (!allBlogs) {
       return res.status(404).send({ status: false, msg: "This blog is not found or deleted." });
     }
-    let date = new Date();
     allBlogs.isDeleted = true;
     res.status(200).send({ status: true, msg: "Successfully Blog Deleted" });
 

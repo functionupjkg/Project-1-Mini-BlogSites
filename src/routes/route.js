@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const authorController = require("../controller/authorController")
 const blogsController = require("../controller/blogsController")
+const midAuth = require ("../middleware/auth")
 
 
 
@@ -19,8 +20,12 @@ router.get ('/blogs' , blogsController.getBlogs)
 router.put('/blogs/:blogId', blogsController.updateBlogs )
 
 //   Get Blog Api -----------------------------------------
-router.delete("/blogs/:blogId",blogsController.deleteByParams)
-router.delete("/blogs", blogsController.deleteByQueryParams)
+router.delete('/blogs/:blogId',blogsController.deleteByParams)
+router.delete('/blogs', blogsController.deleteByQueryParams)
+
+
+//  Login Api ------------------------------------------------
+router.post('/login', authorController.userLogin, midAuth.authenticate)
 
 
 
