@@ -13,10 +13,10 @@ const verify = function (Id) {
   return (true)
 }
 
-const isValid = function(value){
-  if(typeof value == undefined || value == null) return false
-  if(typeof value == "string" &&  value.trim().length == 0 ) return false
-  else if(typeof value == "string") return true
+const isValid = function (value) {
+  if (typeof value == undefined || value == null) return false
+  if (typeof value == "string" && value.trim().length == 0) return false
+  else if (typeof value == "string") return true
 }
 
 
@@ -153,48 +153,49 @@ const deleteByParams = async function (req, res) {
 
 
 const deleteByQueryParams = async function (req, res) {
-  try{
-     let {category,authorId,tags,subcategory}=req.query
-     let filter={isPublished:true,isDeleted:false}
-
-     if (category){
-      if(!isValid(category)){
-        return res.status(400).send({msg:"enter valid category"})
+  try {
+    let { category, authorId, tags, subcategory } = req.query
+    let filter = { isPublished: false, isDeleted: false }
+    if (category) {
+      if (!isValid(category)) {
+        return res.status(400).send({ status: false, msg: "Enter valid category" })
       }
-      filter.category=category
-     }
-     if(authorId){
-      if(!isValidId(authorId)){
-        return res.status(400).send({msg:"enter valid authorId"})
+      filter.category = category
+    }
+    if (authorId) {
+      if (!isValid(authorId)) {
+        return res.status(400).send({ status: false, msg: "Enter valid authorId" })
       }
-      filter.authorId=authorId
-     }
-     if(tags){
-      if(tags.trim().length==0){
-        return res.status(400).send({msg:"enter valid tags"})
+      if (authorId !== req.token.authorId) {
+        return res.status(403).send({ status: false, msg: "You are not authorised to perform this task" })
       }
-      tags=tags.split(",")
-      filter.tags={$in:tags}
-     }
-     if(subcategory){
-      if(subcategory.trim().length==0){
-        return res.status(400).send({msg:"enter valid subcategory"})
+      filter.authorId = authorId
+    }
+    if (tags) {
+      if (tags.trim().length == 0) {
+        return res.status(400).send({ status: false, msg: "Enter valid tags" })
       }
-      subcategory=subcategory.split(",")
-      filter.subcategory={$in:subcategory}
-     }
-     const data=await blogModel.updateMany(filter,{$set:{isDeleted:true,deletedAt:Date.now()}})
-      if(data.modifiedCount==0){
-        return res.status(404).send({msg:"Data not found"})
+      tags = tags.split(",")
+      filter.tags = { $in: tags }
+    }
+    if (subcategory) {
+      if (subcategory.trim().length == 0) {
+        return res.status(400).send({ status: false, msg: "Enter valid subcategory" })
       }
-      return  res.status(200).send({msg:"successfully deleted"})
+      subcategory = subcategory.split(",")
+      filter.subcategory = { $in: subcategory }
+    }
+    const data = await blogModel.updateMany(filter, { $set: { isDeleted: true, deletedAt: Date.now() } })
+    if (data.modifiedCount == 0) {
+      return res.status(404).send({ status: false, msg: "Such Blog Data not found" })
+    }
+    return res.status(200).send({ status: true, msg: "Blog Deleted Successfully" })
   }
-  catch(err){
+  catch (err) {
     console.log(err)
- return res.status(500).send({msg:err.message})
+    return res.status(500).send({ msg: err.message })
   }
 }
-
 
 
 

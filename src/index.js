@@ -15,7 +15,6 @@ mongoose.connect("mongodb+srv://Jyoti273-db:djukOqR9QbI5Itvc@cluster0.nzuylps.mo
 .catch ( err => console.log(err) )
 
 
-    
 
 app.use('/', route);
 
@@ -25,10 +24,10 @@ app.use(function (req, res) {
     return res.status(404).send({status : "404 ", msg : "Path not found"})
     });
 
-app.get('*', (req, res) =>{
-    res.sendFile(path.join(__dirname + '/client/build/index.html'));
+// app.get('*', (req, res) =>{
+//     res.sendFile(path.join(__dirname + '/client/build/index.html'));
     
-})
+// })
 
 app.listen(process.env.PORT || 3000, function () {
     console.log('Express app running on port ' + (process.env.PORT || 3000))

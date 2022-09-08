@@ -17,6 +17,7 @@ const authenticate = async function (req, res, next) {
             if (err) {
                 return res.status(400).send({status : false, msg : "Error : Invalid Token or Expired Token"})
             } (decode == true)
+            
             next()
         });
     } catch (err) {
@@ -36,10 +37,9 @@ const authorise = async function (req, res, next) {
         let decodeToken = jwt.verify(token, "FunctionUp-Blog-Library")
         let userLoggedIn = decodeToken.authorId
 
-        
         let blogId =req.params.blogId
         if(!mongoose.Types.ObjectId.isValid(blogId))
-        return res.status(400).send({status : false , msg : "BlogId is Invalid.. Please Enter Correct BlogId"});
+        res.status(400).send({status : false , msg : "BlogId is Invalid.. Please Enter Correct Id"});
 
         let findBlog = await blogModel.findById(blogId);
         if(!findBlog)
@@ -56,7 +56,9 @@ const authorise = async function (req, res, next) {
     }
 }
 
-//===================================================
+
+
+//======================= Exported Module ============================
   
 
 
