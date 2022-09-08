@@ -221,3 +221,4 @@ module.exports.updateBlogs = updateBlogs;
 module.exports.getBlogs = getBlogs;
 module.exports.deleteByParams = deleteByParams;
 module.exports.deleteByQueryParams = deleteByQueryParams;
+

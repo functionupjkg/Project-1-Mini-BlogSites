@@ -17,7 +17,7 @@ router.post('/blogs', midAuth.authenticate ,  blogsController.createBlog)
 router.get ('/blogs' , midAuth.authenticate , blogsController.getBlogs)
 
 // Update Blogs Api ----------------------------------------
-router.put('/blogs/:blogId', midAuth.authenticate , blogsController.updateBlogs )
+router.put('/blogs/:blogId', midAuth.authenticate , midAuth.authorise, blogsController.updateBlogs )
 
 //   Get Blog Api -----------------------------------------
 router.delete('/blogs/:blogId', midAuth.authenticate , blogsController.deleteByParams)

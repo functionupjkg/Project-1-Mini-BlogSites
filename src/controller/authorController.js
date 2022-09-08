@@ -78,7 +78,7 @@ const userLogin = async function (req, res) {
         let user = await authorModel.findOne({ email: userName })
         let token = jwt.sign(
             {
-                userId: user._id.toString(),
+                authorId: user._id.toString(),
                 Category: "Book",
                 place: "Library",
             },
