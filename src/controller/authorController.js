@@ -1,4 +1,4 @@
-const authorModel = require("../model/authorModel");
+const authorModel = require("../Model/authorModel");
 const jwt = require('jsonwebtoken')
 
 
@@ -18,6 +18,9 @@ const createAuthor = async (req, res) => {
         if (Object.keys(data).length == 0) {
             return res.status(400).send({ status: false, msg: " Date is require for Author Data Creation" });
         }
+        if(Object.keys(data) != JSON.parse)
+        return res.status(400).send({ status: false, msg: " Wrong Input" });
+
         let validFname = /[a-zA-Z]/g   
         if(!validFname.test(req.body.fname)) {return res.status(400).send({status : false, msg : "Error : First Name should be Alphabates Only."})}
       
@@ -67,31 +70,28 @@ const createAuthor = async (req, res) => {
 
 const userLogin = async function (req, res) {
     try {
-        let userName = req.body.email;
-        let password = req.body.password;
 
-        let user = await authorModel.findOne({ email: userName, password: password });
-        if (!user) {
-            return res.send({ status: false, msg: " Your Credential not Valid" });
-        } else{
-
-        let user = await authorModel.findOne({ email: userName })
-        let token = jwt.sign(
-            {
-                authorId: user._id.toString(),
-                Category: "Book",
-                place: "Library",
-            },
-
-            "FunctionUp-Blog-Library"
-        );
-        res.setHeader("x-api-key", token);
-        res.status(500).send({ status: true, data: token });
+        
+            let { email, password } = req.body
+            if (!email) return res.status(400).send({ status: false, message: "EmailId is mandatory" })
+            if (!password) return res.status(400).send({ status: false, message: "Password is mandatory" })
+            let authorCheck = await authorModel.findOne({ email: email, password: password });
+            if (!authorCheck) return res.status(400).send({ status: false, message: "Your Credencial is not valid." })
+            let token = jwt.sign(
+                {
+                    authorId: authorCheck._id.toString(),
+                    batch: "Plutonium",
+                    organisation: "FunctionUp-Blog"
+                },
+                "FunctionUp-Blog-Library"
+            );
+            return res.status(201).send({ status: true, message: token })
         }
-    } catch (err) {
-        res.status(500).send({ status: false, msg: err.message });
+        catch (error) {
+            res.status(500).send({ status: false, message: error.message })
+        }
     }
-}
+    
 
 
 

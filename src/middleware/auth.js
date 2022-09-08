@@ -1,8 +1,8 @@
 const jwt = require('jsonwebtoken');
-const authorModel = require('../controller/authorController');
-const blogModel = require('../controller/blogsController');
+const authorModel = require("../Model/authorModel");
+const blogModel = require("../Model/blogsModel");
 const mongoose = require('mongoose');
-const { listeners } = require('../model/blogsModel');
+
 
 
 //======================================= Authencation ====================================
@@ -36,6 +36,7 @@ const authorise = async function (req, res, next) {
         let decodeToken = jwt.verify(token, "FunctionUp-Blog-Library")
         let userLoggedIn = decodeToken.authorId
 
+        
         let blogId =req.params.blogId
         if(!mongoose.Types.ObjectId.isValid(blogId))
         return res.status(400).send({status : false , msg : "BlogId is Invalid.. Please Enter Correct BlogId"});
@@ -55,7 +56,7 @@ const authorise = async function (req, res, next) {
     }
 }
 
-
+//===================================================
   
 
 
