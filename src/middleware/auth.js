@@ -11,7 +11,7 @@ const authenticate = async function (req, res, next) {
     try {
         let token = req.headers["x-api-key"];
         if (!token) return res.status(401).send({ status: false, msg: "Token must be present" });
-        let decodeToken = jwt.verify(token, "FunctionUp-Blog-Library", (err, decode) => {
+        jwt.verify(token, "FunctionUp-Blog-Library", (err, decode) => {
             if (err) {
                 return res.status(401).send({ status: false, msg: "Error : Invalid Token or Expired Token" })
             } 
@@ -31,7 +31,6 @@ const authenticate = async function (req, res, next) {
 const authorise = async function (req, res, next) {
     try {
         let token = req.headers["x-api-key"]
-        // let (!token) = req.headers["x-Api-key"]
         let decodeToken = jwt.verify(token, "FunctionUp-Blog-Library")
         let userLoggedIn = decodeToken.authorId
 

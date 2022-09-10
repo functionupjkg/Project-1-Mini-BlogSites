@@ -2,8 +2,11 @@ const authorModel = require("../Model/authorModel");
 const jwt = require('jsonwebtoken')
 
 
+
+
+// Regex for Email Validation--
 const validateEmail = function (email) {
-    return (/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,20}$/).test(email)
+    return (/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/).test(email)
 
 }
 
@@ -41,13 +44,13 @@ const createAuthor = async (req, res) => {
         }
         if (!validateEmail(req.body.email))
             return res.status(400).send({ status: false, msg: "Please Enter a valid email" })
-        req.body.email = req.body.email.toLowerCase()
+
+        req.body.email = req.body.email.toLowerCase() // if user send Email in uppercase so by using toLowerCase it convert auto lower case
         let emailExited = await authorModel.findOne({ email: data.email })
 
         if (emailExited) {
             return res.status(400).send({ status: false, msg: "This Email already exists, Please Try another !" });
         }
-
 
         if (!(data.password)) {
             return res.status(400).send({ status: false, msg: "Please Enter your password" });
@@ -65,11 +68,10 @@ const createAuthor = async (req, res) => {
     }
 }
 
-//============================================= Login User ===========================================
+//============================================= Create Author Login Credential ===========================================
 
-const userLogin = async function (req, res) {
+const authorLogin = async function (req, res) {
     try {
-
 
         let { email, password } = req.body
         if (!email)
@@ -100,7 +102,7 @@ const userLogin = async function (req, res) {
 
 
 module.exports.createAuthor = createAuthor
-module.exports.userLogin = userLogin;
+module.exports.authorLogin = authorLogin;
 
 
 

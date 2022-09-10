@@ -14,7 +14,7 @@ const midAuth = require ("../middleware/auth")
 router.post('/authors',  authorController.createAuthor )
 
 //  Login Api ------------------------------------------------
-router.post('/login', authorController.userLogin)
+router.post('/login', authorController.authorLogin)
 
 // Create Blogs Api ---------------------------------------
 router.post('/blogs', midAuth.authenticate , blogsController.createBlog)
@@ -26,6 +26,7 @@ router.put('/blogs/:blogId', midAuth.authenticate ,  midAuth.authorise, blogsCon
 //   Delete Blog Api -----------------------------------------
 router.delete('/blogs/:blogId', midAuth.authenticate , midAuth.authorise, blogsController.deleteByParams)
 router.delete('/blogs', midAuth.authenticate ,  blogsController.deleteByQueryParams)
+
 
 
 

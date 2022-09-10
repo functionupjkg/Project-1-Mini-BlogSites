@@ -3,6 +3,7 @@ const ObjectId = mongoose.Schema.Types.ObjectId
 
 
 
+
 const blogsSchema = new mongoose.Schema({
 
     title: {
@@ -41,7 +42,9 @@ const blogsSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    publishedAt: {type: Date},
+    publishedAt: {
+        type: Date
+    },
 	
     isPublished: {
         type: Boolean,
@@ -52,6 +55,5 @@ const blogsSchema = new mongoose.Schema({
 
 
 module.exports = mongoose.model("blog", blogsSchema)
-
 
 

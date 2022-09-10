@@ -34,6 +34,7 @@ const createBlog = async (req, res) => {
       return res.status(400).send({ status: false, msg: "Please Enter Book Title" });
     if (!data.body)
       return res.status(400).send({ status: false, msg: "Please Enter the Book Description" });
+
     if (!data.authorId)
       return res.status(400).send({ status: false, msg: "Author ID is Mandatory" });
 
@@ -46,8 +47,21 @@ const createBlog = async (req, res) => {
       }
     }
 
+    if (data.authorId) {
+      if (data.authorId !== req.token.authorId) {
+        return res.status(403).send({ status: false, msg: "You are not Authorised to Create blog." })
+      }
+      req.body.authorId = data.authorId
+
+    }
+
+
     if (!data.category)
       return res.status(400).send({ status: false, msg: "Please Enter book Category" });
+
+    if (data.isPublished == true) {
+      data.publishedAt = Date.now();
+    }
 
     let getAuthorData = await authorModel.findById(data.authorId);
 
@@ -79,6 +93,13 @@ const getBlogs = async (req, res) => {
       }
     }
 
+    if (req.query.authorId) {
+      if (authorId !== req.token.authorId) {
+        return res.status(403).send({ status: false, msg: "You are not authorised to perform this task" })
+      }
+      req.query.authorId = authorId
+
+    }
     if (category) { filter.category = category }
     if (tags) { filter.tags = tags }
     if (subcategory) { filter.subcategory = subcategory }
@@ -109,7 +130,7 @@ const updateBlogs = async (req, res) => {
 
     let findBlogId = await blogModel.findById(blogId)
 
-    if (findBlogId.isDeleted == true) res.status(404).send({ status: false, msg: "Blogs already deleted" })
+    if (findBlogId.isDeleted == true) { return res.status(404).send({ status: false, msg: "Blogs already deleted" }) }
 
     let updatedBlog = await blogModel.findOneAndUpdate({ _id: blogId }, {
       $set: {
@@ -138,9 +159,10 @@ const deleteByParams = async function (req, res) {
     if (!allBlogs) {
       return res.status(404).send({ status: false, msg: "This blog is not found or deleted." });
     }
-    let date = new Date();
+  
     allBlogs.isDeleted = true;
-    const updated = await blogModel.findByIdAndUpdate({ _id: id }, allBlogs, { new: true, deletedAt: date });
+    allBlogs.deletedAt = Date.now()
+    const updated = await blogModel.findByIdAndUpdate({ _id: id }, allBlogs, { new: true });
     return res.status(200).send({ status: true, msg: "Successfully Blog Deleted" });
 
   } catch (err) {
@@ -154,6 +176,8 @@ const deleteByParams = async function (req, res) {
 
 const deleteByQueryParams = async function (req, res) {
   try {
+    if (Object.keys(req.query).length == 0) return res.status(400).send({ status: false, msg: "Send atleast one Query for delete blog " })
+
     let { category, authorId, tags, subcategory, isPublished } = req.query
     let filter = { isDeleted: false }
 
@@ -170,7 +194,7 @@ const deleteByQueryParams = async function (req, res) {
 
     if (authorId) {
       if (authorId !== req.token.authorId) {
-        return res.status(403).send({ status: false, msg: "You are not authorised to perform this task" })
+        return res.status(403).send({ status: false, msg: "You are not authorised to delete this blog" })
       }
       filter.authorId = authorId
 
@@ -189,10 +213,15 @@ const deleteByQueryParams = async function (req, res) {
       }
       subcategory = subcategory.split(",")
       filter.subcategory = { $in: subcategory }
-    }
-   
 
-    if (Object.keys(filter).length < 2) return res.status(400).send({ status: false, msg: "Send atleast one Query for delete blog " })
+    }
+    if (req.query.hasOwnProperty("isPublished")) {
+
+      if (!["true", "false"].includes(isPublished)) {
+        return res.status(400).send({ status: false, msg: "is published can only be a boolean value" })
+      }
+      filter.isPublished = isPublished
+    }
 
     const data = await blogModel.updateMany(filter, { $set: { isDeleted: true, deletedAt: Date.now() } })
     if (data.modifiedCount == 0) {
@@ -211,6 +240,10 @@ const deleteByQueryParams = async function (req, res) {
 
 
 
+
+
+
+
 // //============================= Exports Module functions  ==========================//
 
 module.exports.createBlog = createBlog;
@@ -218,4 +251,5 @@ module.exports.updateBlogs = updateBlogs;
 module.exports.getBlogs = getBlogs;
 module.exports.deleteByParams = deleteByParams;
 module.exports.deleteByQueryParams = deleteByQueryParams;
+
 
