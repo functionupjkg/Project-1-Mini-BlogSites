@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 
 
 
+
 //<=================Validators ================================>>//
 const verify = function (Id) {
   if (!mongoose.Types.ObjectId.isValid(Id)) {
@@ -15,7 +16,7 @@ const verify = function (Id) {
 
 const isValid = function (value) {
   if (typeof value == undefined || value == null) return false
-  if (typeof value == "string" && value.trim().length == 0) return false
+  if (typeof value == "string" || value.trim().length == 0) return false
   else if (typeof value == "string") return true
 }
 
@@ -41,6 +42,7 @@ const createBlog = async (req, res) => {
         return res.status(404).send({ status: false, msg: "Please Enter Valid Author Id " })
       } else {
         req.body.authorId = data.authorId
+
       }
     }
 
@@ -53,9 +55,9 @@ const createBlog = async (req, res) => {
       return res.status(404).send({ status: false, msg: "No such author found" });
 
     let getBlogData = await blogModel.create(data);
-
-    res.status(201).send({ status: true, data: getBlogData });
-  } catch (err) {
+    return res.status(201).send({ status: true, data: getBlogData });
+  }
+  catch (err) {
     res.status(500).send({ status: false, error: err.message });
   }
 }
@@ -64,20 +66,22 @@ const createBlog = async (req, res) => {
 
 const getBlogs = async (req, res) => {
   try {
-    let authorId = req.query.authorId
-    let category = req.query.category
-    let tags = req.query.tags
-    let subcategory = req.query.subcategory
 
+    let { authorId, category, tags, subcategory } = req.query;
     let filter = { isDeleted: false, isPublished: true }
-
-
     if (authorId) { filter.authorId = authorId }
+
+    if (req.query.authorId) {
+      if (!verify(req.query.authorId)) {
+        return res.status(404).send({ status: false, msg: "Please Enter Valid Author Id " })
+      } else {
+        req.query.authorId = authorId
+      }
+    }
+
     if (category) { filter.category = category }
     if (tags) { filter.tags = tags }
     if (subcategory) { filter.subcategory = subcategory }
-
-
 
     let savedData = await blogModel.find(filter)
     if (savedData.length == 0) {
@@ -86,7 +90,7 @@ const getBlogs = async (req, res) => {
       return res.status(200).send({ status: true, data: savedData })
     }
   } catch (err) {
-    res.status(500).send({ msg: err.message })
+    res.status(500).send({ status: false, msg: err.message })
   }
 }
 
@@ -95,19 +99,19 @@ const getBlogs = async (req, res) => {
 const updateBlogs = async (req, res) => {
   try {
     let alldata = req.body
-    let getId = req.params.blogId
+    let blogId = req.params.blogId
 
     if (Object.keys(alldata).length == 0)
       return res.status(400).send({ status: false, msg: "Please Enter Blog Details For Updating" })
 
-    if (!getId)
+    if (!blogId)
       return res.status(400).send({ status: false, msg: "Blog Id is required" })
 
-    let findBlogId = await blogModel.findById(getId)
+    let findBlogId = await blogModel.findById(blogId)
 
-    if (findBlogId.isDeleted == true) res.status(404).send({ msg: "blogs already deleted" })
+    if (findBlogId.isDeleted == true) res.status(404).send({ status: false, msg: "Blogs already deleted" })
 
-    let updatedBlog = await blogModel.findOneAndUpdate({ _id: getId }, {
+    let updatedBlog = await blogModel.findOneAndUpdate({ _id: blogId }, {
       $set: {
         title: alldata.title,
         body: alldata.body,
@@ -125,9 +129,6 @@ const updateBlogs = async (req, res) => {
 };
 
 
-
-
-
 //================================ Delete Blog by Params =====================================
 
 const deleteByParams = async function (req, res) {
@@ -140,7 +141,7 @@ const deleteByParams = async function (req, res) {
     let date = new Date();
     allBlogs.isDeleted = true;
     const updated = await blogModel.findByIdAndUpdate({ _id: id }, allBlogs, { new: true, deletedAt: date });
-    res.status(200).send({ status: true, msg: "Successfully Blog Deleted" });
+    return res.status(200).send({ status: true, msg: "Successfully Blog Deleted" });
 
   } catch (err) {
     res.status(500).send({ status: false, msg: err.message });
@@ -151,26 +152,30 @@ const deleteByParams = async function (req, res) {
 
 //================================ Delete Blog By Query Params =========================================
 
-
 const deleteByQueryParams = async function (req, res) {
   try {
-    let { category, authorId, tags, subcategory } = req.query
-    let filter = { isPublished: false, isDeleted: false }
+    let { category, authorId, tags, subcategory, isPublished } = req.query
+    let filter = { isDeleted: false }
+
     if (category) {
       if (!isValid(category)) {
         return res.status(400).send({ status: false, msg: "Enter valid category" })
       }
       filter.category = category
     }
+
+    if (authorId && !mongoose.Types.ObjectId.isValid(authorId)) {
+      return res.status(400).send({ status: false, msg: "Enter valid authorId" })
+    }
+
     if (authorId) {
-      if (!isValid(authorId)) {
-        return res.status(400).send({ status: false, msg: "Enter valid authorId" })
-      }
       if (authorId !== req.token.authorId) {
         return res.status(403).send({ status: false, msg: "You are not authorised to perform this task" })
       }
       filter.authorId = authorId
+
     }
+
     if (tags) {
       if (tags.trim().length == 0) {
         return res.status(400).send({ status: false, msg: "Enter valid tags" })
@@ -185,6 +190,10 @@ const deleteByQueryParams = async function (req, res) {
       subcategory = subcategory.split(",")
       filter.subcategory = { $in: subcategory }
     }
+   
+
+    if (Object.keys(filter).length < 2) return res.status(400).send({ status: false, msg: "Send atleast one Query for delete blog " })
+
     const data = await blogModel.updateMany(filter, { $set: { isDeleted: true, deletedAt: Date.now() } })
     if (data.modifiedCount == 0) {
       return res.status(404).send({ status: false, msg: "Such Blog Data not found" })
@@ -193,13 +202,16 @@ const deleteByQueryParams = async function (req, res) {
   }
   catch (err) {
     console.log(err)
-    return res.status(500).send({ msg: err.message })
+    res.status(500).send({ status: false, msg: err.message })
   }
 }
 
 
 
-//============================= Exports Module functions  ==========================//
+
+
+
+// //============================= Exports Module functions  ==========================//
 
 module.exports.createBlog = createBlog;
 module.exports.updateBlogs = updateBlogs;

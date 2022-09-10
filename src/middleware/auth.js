@@ -9,19 +9,18 @@ const mongoose = require('mongoose');
 
 const authenticate = async function (req, res, next) {
     try {
-        let token = req.headers["x-Api-key"];
-        if (!token) token = req.headers["x-api-key"];
-        if (!token) return res.status(400).send({ status: false, msg: "Token must be present" });
-
+        let token = req.headers["x-api-key"];
+        if (!token) return res.status(401).send({ status: false, msg: "Token must be present" });
         let decodeToken = jwt.verify(token, "FunctionUp-Blog-Library", (err, decode) => {
             if (err) {
-                return res.status(400).send({status : false, msg : "Error : Invalid Token or Expired Token"})
-            } (decode == true)
-            
-            next()
+                return res.status(401).send({ status: false, msg: "Error : Invalid Token or Expired Token" })
+            } 
+            req.token = decode
+
+            next();
         });
     } catch (err) {
-        res.status(500).send({ status: false, msg: err.message });
+        return res.status(500).send({ status: false, msg: err.message });
     }
 };
 
@@ -31,35 +30,34 @@ const authenticate = async function (req, res, next) {
 
 const authorise = async function (req, res, next) {
     try {
-        let token = req.headers["x-Api-key"]
-        if (!token) token = req.headers["x-api-key"];
-   
+        let token = req.headers["x-api-key"]
+        // let (!token) = req.headers["x-Api-key"]
         let decodeToken = jwt.verify(token, "FunctionUp-Blog-Library")
         let userLoggedIn = decodeToken.authorId
 
-        let blogId =req.params.blogId
-        if(!mongoose.Types.ObjectId.isValid(blogId))
-        res.status(400).send({status : false , msg : "BlogId is Invalid.. Please Enter Correct Id"});
+        let blogId = req.params.blogId
+        if (!mongoose.Types.ObjectId.isValid(blogId))
+            return res.status(400).send({ status: false, msg: "BlogId is Invalid.. Please Enter Correct Id" });
 
         let findBlog = await blogModel.findById(blogId);
-        if(!findBlog)
-        return res.status(404).send({status : false, msg : "No Such Blog Available."})
+        if (!findBlog)
+            return res.status(404).send({ status: false, msg: "No Such Blog Available." })
 
-        if(findBlog.authorId.toString() !== userLoggedIn)
-        return res.status(403).send({status:false, msg : "Unauthorized Author, You can't change / Delelte to ohters Blog"});
+        if (findBlog.authorId.toString() !== userLoggedIn)
+            return res.status(403).send({ status: false, msg: "Unauthorized Author, You can't change / Delelte to ohters Blog" });
+
 
         next();
-       
+
 
     } catch (err) {
-        res.status(500).send({ status: false, msg: err.message });
+        return res.status(500).send({ status: false, msg: err.message });
     }
 }
 
 
 
 //======================= Exported Module ============================
-  
 
 
 

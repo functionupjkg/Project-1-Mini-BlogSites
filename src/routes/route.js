@@ -23,11 +23,9 @@ router.get ('/blogs' , midAuth.authenticate , blogsController.getBlogs)
 // Update Blogs Api ----------------------------------------
 router.put('/blogs/:blogId', midAuth.authenticate ,  midAuth.authorise, blogsController.updateBlogs )
 
-//   Get Blog Api -----------------------------------------
+//   Delete Blog Api -----------------------------------------
 router.delete('/blogs/:blogId', midAuth.authenticate , midAuth.authorise, blogsController.deleteByParams)
 router.delete('/blogs', midAuth.authenticate ,  blogsController.deleteByQueryParams)
-
-
 
 
 

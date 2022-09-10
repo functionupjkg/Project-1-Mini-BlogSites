@@ -53,11 +53,11 @@ const createAuthor = async (req, res) => {
             return res.status(400).send({ status: false, msg: "Please Enter your password" });
         }
         let validPassword = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,15}$/
-        if (!validPassword.test(req.body.password)) { return res.status(400).send({ status: false, msg: "Invalid Password, It should be length(6-20) character [Ex - Abc@123]" }) }
+        if (!validPassword.test(req.body.password)) { return res.status(400).send({ status: false, msg: "Invalid Password, It should be length(6-15) character [Ex - Abc@123]" }) }
 
 
         let getAuthorData = await authorModel.create(data);
-        res.status(201).send({ status: true, data: getAuthorData });
+        return res.status(201).send({ status: true, data: getAuthorData });
 
 
     } catch (err) {
@@ -72,10 +72,13 @@ const userLogin = async function (req, res) {
 
 
         let { email, password } = req.body
-        if (!email) return res.status(400).send({ status: false, message: "EmailId is mandatory" })
-        if (!password) return res.status(400).send({ status: false, message: "Password is mandatory" })
+        if (!email)
+            return res.status(400).send({ status: false, message: "EmailId is mandatory" })
+        if (!password)
+            return res.status(400).send({ status: false, message: "Password is mandatory" })
         let author = await authorModel.findOne({ email: email, password: password });
-        if (!author) return res.status(401).send({ status: false, message: "Your Credencial is not valid." })
+        if (!author)
+            return res.status(401).send({ status: false, message: "Your Credencial is not valid." })
         let token = jwt.sign(
             {
                 authorId: author._id.toString(),
@@ -98,7 +101,6 @@ const userLogin = async function (req, res) {
 
 module.exports.createAuthor = createAuthor
 module.exports.userLogin = userLogin;
-
 
 
 
