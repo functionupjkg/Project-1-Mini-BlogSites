@@ -5,7 +5,6 @@ const mongoose = require('mongoose');
 
 
 
-
 //<=================Validators ================================>>//
 const verify = function (Id) {
   if (!mongoose.Types.ObjectId.isValid(Id)) {
@@ -16,7 +15,7 @@ const verify = function (Id) {
 
 const isValid = function (value) {
   if (typeof value == undefined || value == null) return false
-  if (typeof value == "string" || value.trim().length == 0) return false
+  if (value.trim().length == 0) return false
   else if (typeof value == "string") return true
 }
 
@@ -40,7 +39,7 @@ const createBlog = async (req, res) => {
 
     if (data.authorId) {
       if (!verify(data.authorId)) {
-        return res.status(404).send({ status: false, msg: "Please Enter Valid Author Id " })
+        return res.status(400).send({ status: false, msg: "Please Enter Valid Author Id " })
       } else {
         req.body.authorId = data.authorId
 
@@ -83,11 +82,12 @@ const getBlogs = async (req, res) => {
 
     let { authorId, category, tags, subcategory } = req.query;
     let filter = { isDeleted: false, isPublished: true }
+
     if (authorId) { filter.authorId = authorId }
 
     if (req.query.authorId) {
       if (!verify(req.query.authorId)) {
-        return res.status(404).send({ status: false, msg: "Please Enter Valid Author Id " })
+        return res.status(400).send({ status: false, msg: "Please Enter Valid Author Id " })
       } else {
         req.query.authorId = authorId
       }
@@ -106,7 +106,7 @@ const getBlogs = async (req, res) => {
 
     let savedData = await blogModel.find(filter)
     if (savedData.length == 0) {
-      return res.status(400).send({ status: false, msg: "Such Blogs Not Available" })
+      return res.status(404).send({ status: false, msg: "Such Blogs Not Available" })
     } else {
       return res.status(200).send({ status: true, data: savedData })
     }
@@ -197,6 +197,7 @@ const deleteByQueryParams = async function (req, res) {
         return res.status(403).send({ status: false, msg: "You are not authorised to delete this blog" })
       }
       filter.authorId = authorId
+      console.log(authorId)
 
     }
 
@@ -224,6 +225,7 @@ const deleteByQueryParams = async function (req, res) {
     }
 
     const data = await blogModel.updateMany(filter, { $set: { isDeleted: true, deletedAt: Date.now() } })
+  // console.log(data)
     if (data.modifiedCount == 0) {
       return res.status(404).send({ status: false, msg: "Such Blog Data not found" })
     }

@@ -3,7 +3,6 @@ const jwt = require('jsonwebtoken')
 
 
 
-
 // Regex for Email Validation--
 const validateEmail = function (email) {
     return (/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/).test(email)
@@ -22,14 +21,16 @@ const createAuthor = async (req, res) => {
             return res.status(400).send({ status: false, msg: " Date is require for Author Data Creation" });
         }
 
-        let validFname = /[a-zA-Z]/g
+        let validFname = /^[A-Za-z][A-Za-z-\s ][^\s-]+$/
         if (!validFname.test(req.body.fname)) { return res.status(400).send({ status: false, msg: "Error : First Name should be Alphabates Only." }) }
-
-        let validLname = /[a-zA-Z]/g
-        if (!validLname.test(req.body.lname)) { return res.status(400).send({ status: false, msg: "Error : Last Name should be Alphabates Only." }) }
+       
         if (!(data.fname)) {
             return res.status(400).send({ status: false, msg: "First Name is Mandatory : Please Enter..!!" });
         }
+
+        let validLname =/^[A-Za-z][A-Za-z-\s ][^\s-]+$/
+        if (!validLname.test(req.body.lname)) { return res.status(400).send({ status: false, msg: "Error : Last Name should be Alphabates Only." }) }
+        
         if (!(data.lname)) {
             return res.status(400).send({ status: false, msg: "Enter your last Name" });
         }
@@ -95,7 +96,6 @@ const authorLogin = async function (req, res) {
         res.status(500).send({ status: false, message: error.message })
     }
 }
-
 
 
 

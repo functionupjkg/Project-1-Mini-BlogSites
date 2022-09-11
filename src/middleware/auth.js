@@ -43,8 +43,7 @@ const authorise = async function (req, res, next) {
             return res.status(404).send({ status: false, msg: "No Such Blog Available." })
 
         if (findBlog.authorId.toString() !== userLoggedIn)
-            return res.status(403).send({ status: false, msg: "Unauthorized Author, You can't change / Delelte to ohters Blog" });
-
+            return res.status(403).send({ status: false, msg: "Unauthorized Author, You can't change / Delelte to ohters Blog" })
 
         next();
 

@@ -7,7 +7,6 @@ const midAuth = require ("../middleware/auth")
 
 
 
-
 //<<----------------- BLOG Project ---------------------------->>
 
 // Create Author Api -------------------------------------
