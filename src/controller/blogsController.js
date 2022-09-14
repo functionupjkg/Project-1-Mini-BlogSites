@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 
 
 
-//<=================Validators ================================>>//
+//<=================Validators =================================>>//
 const verify = function (Id) {
   if (!mongoose.Types.ObjectId.isValid(Id)) {
     return false

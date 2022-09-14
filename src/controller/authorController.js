@@ -12,7 +12,6 @@ const validateEmail = function (email) {
 //================================================function Creation of Author Data ===========================
 
 
-
 const createAuthor = async (req, res) => {
     try {
         let data = req.body;

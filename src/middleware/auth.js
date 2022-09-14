@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 
 
 
-//======================================= Authencation ====================================
+//======================================= Authencation =====================================
 
 const authenticate = async function (req, res, next) {
     try {
